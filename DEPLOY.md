@@ -3,6 +3,32 @@
 ⚠️ Este deploy se hace **solo desde la copia** `steamsense-deploy`.  
 El proyecto original `steamsense` queda intacto.
 
+## Repositorio Git (para Render + Vercel)
+
+1. **Crear un repositorio nuevo en GitHub** (mismo usuario que uses, ej. `steamsense-deploy`).
+   - No inicialices con README, .gitignore ni licencia.
+
+2. **Subir este código** (si aún no lo hiciste):
+
+   ```bash
+   cd steamsense-deploy
+   git remote add origin https://github.com/<TU_USUARIO>/<NOMBRE_REPO>.git
+   git push -u origin main
+   ```
+
+   Si ya añadiste un `origin` distinto, cámbialo:
+
+   ```bash
+   git remote set-url origin https://github.com/<TU_USUARIO>/<NOMBRE_REPO>.git
+   git push -u origin main
+   ```
+
+3. **Conectar en Render**: Dashboard → New → Web Service → conectar el repo de GitHub → elegir este repositorio.
+
+4. **Conectar en Vercel**: Import Git Repository → elegir el mismo repositorio → Root Directory = `frontend`.
+
+---
+
 ## Frontend (Next.js) → Vercel
 
 - **Root Directory**: `frontend`
