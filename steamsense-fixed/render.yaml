@@ -1,0 +1,44 @@
+services:
+  # ── Backend FastAPI ────────────────────────────────────────
+  - type: web
+    name: steamsense-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+
+    disk:
+      name: steamsense-db
+      mountPath: /data
+      sizeGB: 1
+
+    envVars:
+      - key: ITAD_API_KEY
+        value: "e0af1db7bbaa9d255379923e939452d78ba44653"
+      - key: STEAM_API_KEY
+        value: "B6FF728C416277DE719A794F78EFFCB3"
+      - key: JWT_SECRET
+        value: "826fa46deb177a65662bfedec409880b5eb088581912169e00fc2815ad4fd863"
+      - key: DUCKDB_PATH
+        value: /data/steamsense.duckdb
+      - key: ENV
+        value: production
+      - key: CORS_ORIGINS
+        sync: false   # ⚠️ Cambiar a tu URL de Vercel: https://steamsense.vercel.app
+      - key: FRONTEND_URL
+        sync: false   # ⚠️ Mismo valor que CORS_ORIGINS
+      - key: TOP_N_GAMES
+        value: "200"
+
+  # ── Frontend Next.js ───────────────────────────────────────
+  - type: web
+    name: steamsense-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://steamsense-backend.onrender.com
