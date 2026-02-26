@@ -1,0 +1,50 @@
+services:
+
+  # ── Backend FastAPI + DuckDB ────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=production
+      - DUCKDB_PATH=./data/steamsense.duckdb
+      - DUCKDB_MEMORY_LIMIT=512MB
+      - DUCKDB_THREADS=2
+      - CORS_ORIGINS=http://localhost:3000,http://frontend:3000
+      - FRONTEND_URL=http://localhost:3000
+      - STEAM_API_KEY=${STEAM_API_KEY}
+      - ITAD_API_KEY=${ITAD_API_KEY}
+      - JWT_SECRET=${JWT_SECRET:-steamsense-docker-local-secret}
+      - TOP_N_GAMES=200
+    volumes:
+      - steamsense_data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # ── Frontend Next.js ────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:8000
+        - INTERNAL_API_URL=http://backend:8000
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - INTERNAL_API_URL=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  steamsense_data:

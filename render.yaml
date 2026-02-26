@@ -1,0 +1,34 @@
+services:
+  # ── Backend FastAPI ─────────────────────────────────────────────────────────
+  - type: web
+    name: steamsense-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+
+    disk:
+      name: steamsense-db
+      mountPath: /data
+      sizeGB: 1
+
+    envVars:
+      - key: ENV
+        value: production
+      - key: DUCKDB_PATH
+        value: /data/steamsense.duckdb
+      - key: TOP_N_GAMES
+        value: "200"
+      # ⚠️ Estas variables las pones MANUALMENTE en el dashboard de Render
+      # Nunca pongas secrets hardcodeados aquí si el repo es público
+      - key: STEAM_API_KEY
+        sync: false
+      - key: ITAD_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false   # Tu URL de Vercel: https://steamsense-xxx.vercel.app
+      - key: FRONTEND_URL
+        sync: false   # Mismo valor que CORS_ORIGINS

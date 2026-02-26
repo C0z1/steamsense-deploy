@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Secrets — NUNCA subir al repo
+.env
+backend/.env
+
+# DuckDB
+*.duckdb
+*.duckdb.wal
+data/
+
+# ML artifacts (modelos grandes, se regeneran con train.py)
+backend/src/ml/artifacts/*.joblib
+backend/src/ml/artifacts/*.pkl
+
+# Node
+node_modules/
+.next/
+frontend/.env.local
+frontend/.env.production
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
