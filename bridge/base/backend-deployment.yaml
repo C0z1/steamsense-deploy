@@ -1,0 +1,68 @@
+#! backend-deployment.yaml
+# Generated code, do not edit
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: backend
+    namespace: steamsense-final
+    labels:
+        com.docker.compose.project: steamsense-final
+        com.docker.compose.service: backend
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            com.docker.compose.project: steamsense-final
+            com.docker.compose.service: backend
+    strategy:
+        type: Recreate
+    template:
+        metadata:
+            labels:
+                com.docker.compose.project: steamsense-final
+                com.docker.compose.service: backend
+                com.docker.compose.network.default: "true"
+        spec:
+            restartPolicy: unless-stopped
+            containers:
+                - name: backend
+                  image: steamsense-final-backend
+                  imagePullPolicy: IfNotPresent
+                  env:
+                    - name: CORS_ORIGINS
+                      value: "http://localhost:3000,http://frontend:3000"
+                    - name: DUCKDB_MEMORY_LIMIT
+                      value: "512MB"
+                    - name: DUCKDB_PATH
+                      value: "./data/steamsense.duckdb"
+                    - name: DUCKDB_THREADS
+                      value: "2"
+                    - name: ENV
+                      value: "production"
+                    - name: FRONTEND_URL
+                      value: "http://localhost:3000"
+                    - name: ITAD_API_KEY
+                      value: "e0af1db7bbaa9d255379923e939452d78ba44653"
+                    - name: JWT_SECRET
+                      value: "K7mP2xQnR9vL4wYcH8jN3uE6tA1sD5fG0iO"
+                    - name: STEAM_API_KEY
+                      value: "B6FF728C416277DE719A794F78EFFCB3"
+                    - name: TOP_N_GAMES
+                      value: "200"
+                  livenessProbe:
+                    exec:
+                        command: ['curl -f http://localhost:8000/health']
+                    periodSeconds: 15
+                    initialDelaySeconds: 10
+                    timeoutSeconds: 5
+                    failureThreshold: 5
+                  ports:
+                    - name: backend-8000
+                      containerPort: 8000
+                  volumeMounts:
+                    - name: app-data
+                      mountPath: /app/data
+            volumes:
+                - name: app-data
+                  persistentVolumeClaim:
+                    claimName: backend-steamsense-data

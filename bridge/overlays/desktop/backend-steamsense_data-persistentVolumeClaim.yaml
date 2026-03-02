@@ -1,0 +1,9 @@
+#! backend-steamsense_data-persistentVolumeClaim.yaml
+# Generated code, do not edit
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: backend-steamsense-data
+    namespace: steamsense-final
+spec:
+    storageClassName: "hostpath" # see docker/desktop-storage-provisioner

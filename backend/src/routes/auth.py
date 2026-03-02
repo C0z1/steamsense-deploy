@@ -4,7 +4,8 @@ src/routes/auth.py
 Endpoints de autenticación Steam OpenID.
 """
 import logging
-from fastapi import APIRouter, HTTPException, Request, Query
+import os
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from config import get_settings
 from src.api.steam_auth import get_openid_redirect_url, verify_openid_response, create_jwt
@@ -16,12 +17,20 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+# FIX: leer URLs desde variables de entorno, no hardcodeadas
+def _frontend_url() -> str:
+    return os.getenv("FRONTEND_URL", "http://localhost:3000")
+
+def _backend_url() -> str:
+    return os.getenv("BACKEND_URL", "http://localhost:8000")
+
 
 @router.get("/steam")
 def login_with_steam(request: Request):
     """Inicia el flujo OpenID — redirige al usuario a Steam."""
-    # Use the actual deployed backend URL (Render) via request.base_url
-    callback = f"{str(request.base_url).rstrip('/')}/auth/steam/callback"
+    # FIX: usar el host real de la request para el callback, o leer de env
+    backend = _backend_url()
+    callback = f"{backend}/auth/steam/callback"
     redirect_url = get_openid_redirect_url(callback)
     return RedirectResponse(redirect_url)
 
@@ -53,8 +62,8 @@ async def steam_callback(request: Request):
     # Emitir JWT
     token = create_jwt(steam_id, display_name, avatar_url)
 
-    # Redirigir al frontend con el token
-    frontend = str(settings.frontend_url).rstrip("/")
+    # FIX: redirigir al frontend usando la URL de entorno
+    frontend = _frontend_url()
     return RedirectResponse(f"{frontend}/dashboard?token={token}")
 
 

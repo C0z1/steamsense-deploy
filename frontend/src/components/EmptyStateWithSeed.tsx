@@ -4,7 +4,8 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { Search, Zap, TrendingDown, RefreshCw } from 'lucide-react'
 
-const BASE = process.env.NEXT_PUBLIC_API_URL
+// FIX: usar variable de entorno en lugar de localhost hardcodeado
+const BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 // Popular Steam games to suggest when DB is empty
 const SEED_GAMES = [
@@ -13,7 +14,7 @@ const SEED_GAMES = [
   { title: 'Stardew Valley',       appid: 413150,  hint: 'Rarely goes above 50% off, but worth it' },
   { title: 'Red Dead Redemption 2',appid: 1174180, hint: 'Historically 60-75% off in major sales' },
   { title: 'Hades',                appid: 1145360, hint: 'Regularly 50% off during Steam sales' },
-  { title: 'Baldur\'s Gate 3',     appid: 1086940, hint: 'Still relatively new, small discounts' },
+  { title: "Baldur's Gate 3",      appid: 1086940, hint: 'Still relatively new, small discounts' },
   { title: 'Deep Rock Galactic',   appid: 548430,  hint: 'Hits 75% off during seasonal sales' },
   { title: 'Monster Hunter: World',appid: 582010,  hint: 'Extremely cheap during sales (-80%)' },
 ]
@@ -28,7 +29,7 @@ export default function EmptyStateWithSeed({ onSearch }: Props) {
   const handleSync = async (appid: number, title: string) => {
     setSyncing(title)
     try {
-      if (!BASE) throw new Error('NEXT_PUBLIC_API_URL is not set')
+      // FIX: usar BASE en lugar de localhost hardcodeado
       const res = await fetch(`${BASE}/sync/game/${appid}`, { method: 'POST' })
       const data = await res.json()
       if (data.game_id) {

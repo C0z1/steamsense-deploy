@@ -3,6 +3,7 @@ services:
   - type: web
     name: steamsense-backend
     runtime: python
+    plan: free          # ← Free tier (evita el cobro de $7/mes del Starter)
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
@@ -11,7 +12,7 @@ services:
     disk:
       name: steamsense-db
       mountPath: /data
-      sizeGB: 1
+      sizeGB: 1         # $0.25/mes — necesario para persistencia de DuckDB
 
     envVars:
       - key: ENV
@@ -32,3 +33,5 @@ services:
         sync: false   # Tu URL de Vercel: https://steamsense-xxx.vercel.app
       - key: FRONTEND_URL
         sync: false   # Mismo valor que CORS_ORIGINS
+      - key: BACKEND_URL
+        sync: false   # Tu URL de Render: https://steamsense-backend.onrender.com
