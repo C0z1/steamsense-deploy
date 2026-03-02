@@ -3,26 +3,27 @@ services:
   - type: web
     name: steamsense-backend
     runtime: python
-    plan: free          # ← Free tier (evita el cobro de $7/mes del Starter)
+    plan: free
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
 
-    disk:
-      name: steamsense-db
-      mountPath: /data
-      sizeGB: 1         # $0.25/mes — necesario para persistencia de DuckDB
+    # NOTA: El plan Free no soporta discos persistentes.
+    # DuckDB usará almacenamiento temporal — los datos se pierden al redeploy.
+    # Para persistencia real, cambia plan: free → plan: starter y descomenta:
+    # disk:
+    #   name: steamsense-db
+    #   mountPath: /data
+    #   sizeGB: 1
 
     envVars:
       - key: ENV
         value: production
       - key: DUCKDB_PATH
-        value: /data/steamsense.duckdb
+        value: /tmp/steamsense.duckdb   # /tmp es el único path escribible en Free
       - key: TOP_N_GAMES
         value: "200"
-      # ⚠️ Estas variables las pones MANUALMENTE en el dashboard de Render
-      # Nunca pongas secrets hardcodeados aquí si el repo es público
       - key: STEAM_API_KEY
         sync: false
       - key: ITAD_API_KEY
@@ -30,8 +31,8 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: CORS_ORIGINS
-        sync: false   # Tu URL de Vercel: https://steamsense-xxx.vercel.app
+        sync: false
       - key: FRONTEND_URL
-        sync: false   # Mismo valor que CORS_ORIGINS
+        sync: false
       - key: BACKEND_URL
-        sync: false   # Tu URL de Render: https://steamsense-backend.onrender.com
+        sync: false
